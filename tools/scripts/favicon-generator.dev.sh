@@ -1,10 +1,10 @@
 secrets_file="./configs/envs/.env.secrets"
 favicon_folder="./public/favicon/"
-master_url="https://raw.githubusercontent.com/blockscout/frontend/main/tools/scripts/favicon.svg"
+master_url="https://raw.githubusercontent.com/hemilabs/frontend/main/tools/scripts/favicon.svg"
 
 if [ ! -f "$secrets_file" ]; then
-    echo "Error: File '$secrets_file' not found."
-    exit 1
+  echo "Error: File '$secrets_file' not found."
+  exit 1
 fi
 
 dotenv \

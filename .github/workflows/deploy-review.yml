@@ -22,7 +22,7 @@ jobs:
     needs: make_slug
     uses: './.github/workflows/publish-image.yml'
     with:
-        tags: ghcr.io/blockscout/frontend:review-${{ needs.make_slug.outputs.REF_SLUG }}
+        tags: hemilabs/frontend:review-${{ needs.make_slug.outputs.REF_SLUG }}
     secrets: inherit
 
   deploy_review:

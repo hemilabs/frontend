@@ -27,6 +27,11 @@ jobs:
       kubeConfigSecret: ci/data/dev/kubeconfig/k8s-dev
       vaultRole: ci-dev
     secrets: inherit
+    # This job will deploy the newly created image version to k8s, but Hemi is
+    # not using that setup at the moment. Disabling it until the pipeline is
+    # revised and adapted.
+    if: false
+    permissions: write-all
 
   deploy_l2:
     name: Deploy frontend (L2)
@@ -39,3 +44,8 @@ jobs:
       kubeConfigSecret: ci/data/dev/kubeconfig/k8s-dev
       vaultRole: ci-dev
     secrets: inherit
+    # This job will deploy the newly created image version to k8s, but Hemi is
+    # not using that setup at the moment. Disabling it until the pipeline is
+    # revised and adapted.
+    if: false
+    permissions: write-all
