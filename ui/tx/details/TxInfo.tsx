@@ -226,6 +226,17 @@ const TxInfo = ({ data, isLoading, socketStatus }: Props) => {
           ) }
         </DetailsInfoItem>
       ) }
+      { data.btc_finality && (
+        <DetailsInfoItem
+          title="Bitcoin finality"
+          hint="Number of Bitcoin block confirmations protecting this transaction."
+          isLoading={ isLoading }
+        >
+          <Skeleton isLoaded={ !isLoading }>
+            { data.btc_finality }
+          </Skeleton>
+        </DetailsInfoItem>
+      ) }
       { data.execution_node && (
         <DetailsInfoItem
           title="Kettle"

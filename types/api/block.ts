@@ -36,6 +36,8 @@ export interface Block {
   bitcoin_merged_mining_merkle_proof?: string | null;
   hash_for_merged_mining?: string | null;
   minimum_gas_price?: string | null;
+  // HEMI FIELDS
+  btc_finality?: number;
 }
 
 export interface BlocksResponse {
