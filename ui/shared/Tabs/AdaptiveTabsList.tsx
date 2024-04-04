@@ -51,13 +51,13 @@ const AdaptiveTabsList = (props: Props) => {
       overflowX={{ base: 'auto', lg: 'initial' }}
       overscrollBehaviorX="contain"
       css={{
-        'scroll-snap-type': 'x mandatory',
+        scrollSnapType: 'x mandatory',
         // hide scrollbar
         '&::-webkit-scrollbar': { /* Chromiums */
           display: 'none',
         },
-        '-ms-overflow-style': 'none', /* IE and Edge */
-        'scrollbar-width': 'none', /* Firefox */
+        MsOverflowStyle: 'none', /* IE and Edge */
+        scrollbarWidth: 'none', /* Firefox */
       }}
       bgColor={ listBgColor }
       transitionProperty="top,box-shadow,background-color,color"

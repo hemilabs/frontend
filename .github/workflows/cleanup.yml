@@ -17,6 +17,13 @@ jobs:
       kubeConfigSecret: ci/data/dev/kubeconfig/k8s-dev
       vaultRole: ci-dev
     secrets: inherit
+    # This job tries to clean up the k8s setup. But we don't have such thing in
+    # the Hemi setup. Disabling instead of deleting to keep this as referenence 
+    # for potential future improvements.
+    if: false
+    permissions:
+      id-token: write
+      contents: read
   cleanup_l2_release:
     uses: blockscout/blockscout-ci-cd/.github/workflows/cleanup_helmfile.yaml@master
     with:
@@ -26,8 +33,22 @@ jobs:
       kubeConfigSecret: ci/data/dev/kubeconfig/k8s-dev
       vaultRole: ci-dev
     secrets: inherit
+    # This job tries to clean up the k8s setup. But we don't have such thing in
+    # the Hemi setup. Disabling instead of deleting to keep this as referenence 
+    # for potential future improvements.
+    if: false
+    permissions:
+      id-token: write
+      contents: read
   cleanup_docker_image:
     uses: blockscout/blockscout-ci-cd/.github/workflows/cleanup_docker.yaml@master
     with:
       dockerImage: review-$GITHUB_REF_NAME_SLUG
     secrets: inherit
+    # This job has to be temporarily disabled as Hemi uses Docker Hub instead of
+    # GitHub to host the images. The referenced workflow will try to remove the
+    # image from GitHub. A new workflow needs to be created to do this instead.
+    if: false
+    permissions:
+      id-token: write
+      contents: read

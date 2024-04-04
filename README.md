@@ -2,18 +2,18 @@
 
 <p align="center">
     <span>Frontend application for </span>
-    <a href="https://github.com/blockscout/blockscout/blob/master/README.md">Blockscout</a>
+    <a href="https://github.com/hemilabs/blockscout/blob/master/README.md">Blockscout</a>
     <span> blockchain explorer</span>
 </p>
 
 ## Running and configuring the app
 
-App is distributed as a docker image. Here you can find information about the [package](https://github.com/blockscout/frontend/pkgs/container/frontend) and its recent [releases](https://github.com/blockscout/frontend/releases).
+App is distributed as a docker image. Images are automatically built and pushed to the repository on every merge to the default branch. Here you can find information about the [package](https://hub.docker.com/repository/docker/hemilabs/frontend/general) and its recent [releases](https://github.com/hemilabs/frontend/releases). If an image is required outside that automated flow, see [how to manually trigger the build and push workflow](./docs/MANUAL_BUILD.md).
 
 You can configure your app by passing necessary environment variables when starting the container. See full list of ENVs and their description [here](./docs/ENVS.md).
 
 ```sh
-docker run -p 3000:3000 --env-file <path-to-your-env-file> ghcr.io/blockscout/frontend:latest
+docker run -p 3000:3000 --env-file <path-to-your-env-file> hemilabs/frontend:latest
 ```
 
 Alternatively, you can build your own docker image and run your app from that. Please follow this [guide](./docs/CUSTOM_BUILD.md).

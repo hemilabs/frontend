@@ -2,7 +2,7 @@
   "name": "blockscout-frontend",
   "version": "1.0.0",
   "private": false,
-  "homepage": "https://github.com/blockscout/frontend#readme",
+  "homepage": "https://github.com/hemilabs/frontend#readme",
   "engines": {
     "node": "20.11.0",
     "npm": "10.2.4"
@@ -149,7 +149,8 @@
     "typescript": "^5.1.0",
     "vite-plugin-svgr": "^2.2.2",
     "vite-tsconfig-paths": "^3.5.2",
-    "ws": "^8.11.0"
+    "ws": "^8.11.0",
+    "yarn": "^1.22.21"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": "eslint --cache --fix"

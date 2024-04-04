@@ -45,6 +45,9 @@ jobs:
     run:
         name: Run
         runs-on: ubuntu-latest
+        # Project management at Hemi is not done using GitHub Projects.
+        # Disabling this job. Otherwise it fails because no tokens are supplied.
+        if: false
         steps:
             -   name: Getting project info
                 id: project_info

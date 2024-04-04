@@ -166,6 +166,17 @@ const BlockDetails = ({ query }: Props) => {
       >
         <DetailsTimestamp timestamp={ data.timestamp } isLoading={ isPlaceholderData }/>
       </DetailsInfoItem>
+      { data.btc_finality && (
+        <DetailsInfoItem
+          title="Bitcoin finality"
+          hint="Number of Bitcoin block confirmations protecting this block."
+          isLoading={ isPlaceholderData }
+        >
+          <Skeleton isLoaded={ !isPlaceholderData }>
+            { data.btc_finality }
+          </Skeleton>
+        </DetailsInfoItem>
+      ) }
       <DetailsInfoItem
         title="Transactions"
         hint="The number of transactions in the block"
