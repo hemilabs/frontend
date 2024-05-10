@@ -1,0 +1,31 @@
+[
+  {
+    "title": "Hemi",
+    "links": [
+      {
+        "icon": "edit",
+        "iconSize": "16px",
+        "text": "Submit an issue",
+        "url": "https://github.com/hemilabs/frontend/issues"
+      },
+      {
+        "icon": "social/git",
+        "iconSize": "18px",
+        "text": "Contribute",
+        "url": "https://github.com/hemilabs/frontend"
+      },
+      {
+        "icon": "social/tweet",
+        "iconSize": "18px",
+        "text": "Twitter",
+        "url": "https://twitter.com/hemi_xyz"
+      },
+      {
+        "icon": "social/discord",
+        "iconSize": "24px",
+        "text": "Discord",
+        "url": "https://discord.gg/hemixyz"
+      }
+    ]
+  }
+]
