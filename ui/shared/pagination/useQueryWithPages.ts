@@ -24,6 +24,8 @@ export interface Params<Resource extends PaginatedResources> {
 
 type NextPageParams = Record<string, unknown>;
 
+const INITIAL_PAGE_PARAMS = { '1': {} };
+
 function getPaginationParamsFromQuery(queryString: string | Array<string> | undefined) {
   if (queryString) {
     try {
@@ -136,7 +138,7 @@ export default function useQueryWithPages<Resource extends PaginatedResources>({
     router.push({ pathname: router.pathname, query: nextRouterQuery }, undefined, { shallow: true }).then(() => {
       queryClient.removeQueries({ queryKey: [ resourceName ] });
       setPage(1);
-      setPageParams({});
+      setPageParams(INITIAL_PAGE_PARAMS);
       window.setTimeout(() => {
         // FIXME after router is updated we still have inactive queries for previously visited page (e.g third), where we came from
         // so have to remove it but with some delay :)
@@ -146,7 +148,7 @@ export default function useQueryWithPages<Resource extends PaginatedResources>({
   }, [ queryClient, resourceName, router, scrollToTop ]);
 
   const onFilterChange = useCallback(<R extends PaginatedResources = Resource>(newFilters: PaginationFilters<R> | undefined) => {
-    const newQuery = omit<typeof router.query>(router.query, 'next_page_params', 'page', resource.filterFields);
+    const newQuery = omit<typeof router.query>(router.query, 'next_page_params', 'page', 'filterFields' in resource ? resource.filterFields : []);
     if (newFilters) {
       Object.entries(newFilters).forEach(([ key, value ]) => {
         const isValidValue = typeof value === 'boolean' || (value && value.length);
@@ -166,9 +168,9 @@ export default function useQueryWithPages<Resource extends PaginatedResources>({
     ).then(() => {
       setHasPages(false);
       setPage(1);
-      setPageParams({});
+      setPageParams(INITIAL_PAGE_PARAMS);
     });
-  }, [ router, resource.filterFields, scrollToTop ]);
+  }, [ router, resource, scrollToTop ]);
 
   const onSortingChange = useCallback((newSorting: PaginationSorting<Resource> | undefined) => {
     const newQuery = {
@@ -186,7 +188,7 @@ export default function useQueryWithPages<Resource extends PaginatedResources>({
     ).then(() => {
       setHasPages(false);
       setPage(1);
-      setPageParams({});
+      setPageParams(INITIAL_PAGE_PARAMS);
     });
   }, [ router, scrollToTop ]);
 
