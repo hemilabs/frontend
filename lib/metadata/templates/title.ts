@@ -14,7 +14,7 @@ const TEMPLATE_MAP: Record<Route['pathname'], string> = {
   '/address/[hash]/contract-verification': 'contract verification for %hash%',
   '/tokens': 'tokens',
   '/token/[hash]': '%symbol% token details',
-  '/token/[hash]/instance/[id]': 'token instance for %symbol%',
+  '/token/[hash]/instance/[id]': 'NFT instance',
   '/apps': 'apps marketplace',
   '/apps/[id]': '- %app_name%',
   '/stats': 'statistics',
@@ -35,11 +35,14 @@ const TEMPLATE_MAP: Record<Route['pathname'], string> = {
   '/output-roots': 'output roots',
   '/batches': 'tx batches (L2 blocks)',
   '/batches/[number]': 'L2 tx batch %number%',
+  '/blobs/[hash]': 'blob %hash% details',
   '/ops': 'user operations',
   '/op/[hash]': 'user operation %hash%',
   '/404': 'error - page not found',
   '/name-domains': 'domains search and resolve',
   '/name-domains/[name]': '%name% domain details',
+  '/validators': 'validators list',
+  '/gas-tracker': 'gas tracker',
 
   // service routes, added only to make typescript happy
   '/login': 'login',

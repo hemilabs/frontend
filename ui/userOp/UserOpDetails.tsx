@@ -12,19 +12,22 @@ import { WEI, WEI_IN_GWEI } from 'lib/consts';
 import throwOnResourceLoadError from 'lib/errors/throwOnResourceLoadError';
 import { space } from 'lib/html-entities';
 import { currencyUnits } from 'lib/units';
+import isCustomAppError from 'ui/shared/AppError/isCustomAppError';
 import CurrencyValue from 'ui/shared/CurrencyValue';
 import DataFetchAlert from 'ui/shared/DataFetchAlert';
 import DetailsInfoItem from 'ui/shared/DetailsInfoItem';
 import DetailsInfoItemDivider from 'ui/shared/DetailsInfoItemDivider';
 import DetailsTimestamp from 'ui/shared/DetailsTimestamp';
+import AddressStringOrParam from 'ui/shared/entities/address/AddressStringOrParam';
 import BlockEntity from 'ui/shared/entities/block/BlockEntity';
 import TxEntity from 'ui/shared/entities/tx/TxEntity';
 import UserOpEntity from 'ui/shared/entities/userOp/UserOpEntity';
 import RawInputData from 'ui/shared/RawInputData';
-import UserOpsAddress from 'ui/shared/userOps/UserOpsAddress';
 import UserOpSponsorType from 'ui/shared/userOps/UserOpSponsorType';
 import UserOpStatus from 'ui/shared/userOps/UserOpStatus';
 import Utilization from 'ui/shared/Utilization/Utilization';
+
+import UserOpDetailsActions from './UserOpDetailsActions';
 
 interface Props {
   query: UseQueryResult<UserOp, ResourceError>;
@@ -46,7 +49,7 @@ const UserOpDetails = ({ query }: Props) => {
   }, []);
 
   if (isError) {
-    if (error?.status === 400 || error?.status === 404 || error?.status === 422) {
+    if (error?.status === 400 || isCustomAppError(error)) {
       throwOnResourceLoadError({ isError, error });
     }
 
@@ -78,7 +81,7 @@ const UserOpDetails = ({ query }: Props) => {
         hint="The address of the smart contract account"
         isLoading={ isPlaceholderData }
       >
-        <UserOpsAddress address={ data.sender } isLoading={ isPlaceholderData }/>
+        <AddressStringOrParam address={ data.sender } isLoading={ isPlaceholderData }/>
       </DetailsInfoItem>
       <DetailsInfoItem
         title="Status"
@@ -165,8 +168,10 @@ const UserOpDetails = ({ query }: Props) => {
         hint="Contract that executes bundles of User operations"
         isLoading={ isPlaceholderData }
       >
-        <UserOpsAddress address={ data.entry_point } isLoading={ isPlaceholderData }/>
+        <AddressStringOrParam address={ data.entry_point } isLoading={ isPlaceholderData }/>
       </DetailsInfoItem>
+
+      { config.features.txInterpretation.isEnabled && <UserOpDetailsActions hash={ data.hash } isUserOpDataLoading={ isPlaceholderData }/> }
 
       { /* CUT */ }
       <GridItem colSpan={{ base: undefined, lg: 2 }}>
@@ -236,7 +241,7 @@ const UserOpDetails = ({ query }: Props) => {
               title="Aggregator"
               hint="Helper contract to validate an aggregated signature"
             >
-              <UserOpsAddress address={ data.aggregator }/>
+              <AddressStringOrParam address={ data.aggregator }/>
             </DetailsInfoItem>
           ) }
           { data.aggregator_signature && (
@@ -251,14 +256,14 @@ const UserOpDetails = ({ query }: Props) => {
             title="Bundler"
             hint="A node (block builder) that handles User operations"
           >
-            <UserOpsAddress address={ data.bundler }/>
+            <AddressStringOrParam address={ data.bundler }/>
           </DetailsInfoItem>
           { data.factory && (
             <DetailsInfoItem
               title="Factory"
               hint="Smart contract that deploys new smart contract wallets for users"
             >
-              <UserOpsAddress address={ data.factory }/>
+              <AddressStringOrParam address={ data.factory }/>
             </DetailsInfoItem>
           ) }
           { data.paymaster && (
@@ -266,7 +271,7 @@ const UserOpDetails = ({ query }: Props) => {
               title="Paymaster"
               hint="Contract to sponsor the gas fees for User operations"
             >
-              <UserOpsAddress address={ data.paymaster }/>
+              <AddressStringOrParam address={ data.paymaster }/>
             </DetailsInfoItem>
           ) }
           <DetailsInfoItem

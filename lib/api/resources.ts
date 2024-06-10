@@ -31,10 +31,18 @@ import type {
   AddressNFTTokensFilter,
 } from 'types/api/address';
 import type { AddressesResponse } from 'types/api/addresses';
+import type { TxBlobs, Blob } from 'types/api/blobs';
 import type { BlocksResponse, BlockTransactionsResponse, Block, BlockFilters, BlockWithdrawalsResponse } from 'types/api/block';
 import type { ChartMarketResponse, ChartTransactionResponse } from 'types/api/charts';
 import type { BackendVersionConfig } from 'types/api/configs';
-import type { SmartContract, SmartContractReadMethod, SmartContractWriteMethod, SmartContractVerificationConfig, SolidityscanReport } from 'types/api/contract';
+import type {
+  SmartContract,
+  SmartContractReadMethod,
+  SmartContractWriteMethod,
+  SmartContractVerificationConfig,
+  SolidityscanReport,
+  SmartContractSecurityAudits,
+} from 'types/api/contract';
 import type { VerifiedContractsResponse, VerifiedContractsFilters, VerifiedContractsCounters } from 'types/api/contracts';
 import type {
   EnsAddressLookupFilters,
@@ -57,6 +65,7 @@ import type {
 } from 'types/api/optimisticL2';
 import type { RawTracesResponse } from 'types/api/rawTrace';
 import type { SearchRedirectResult, SearchResult, SearchResultFilters, SearchResultItem } from 'types/api/search';
+import type { ShibariumWithdrawalsResponse, ShibariumDepositsResponse } from 'types/api/shibarium';
 import type { Counters, StatsCharts, StatsChart, HomeStats } from 'types/api/stats';
 import type {
   TokenCounters,
@@ -76,11 +85,13 @@ import type {
   Transaction,
   TransactionsResponseWatchlist,
   TransactionsSorting,
+  TransactionsResponseWithBlobs,
 } from 'types/api/transaction';
 import type { TxInterpretationResponse } from 'types/api/txInterpretation';
-import type { TTxsFilters } from 'types/api/txsFilters';
+import type { TTxsFilters, TTxsWithBlobsFilters } from 'types/api/txsFilters';
 import type { TxStateChanges } from 'types/api/txStateChanges';
 import type { UserOpsResponse, UserOp, UserOpsFilters, UserOpsAccount } from 'types/api/userOps';
+import type { ValidatorsCountersResponse, ValidatorsFilters, ValidatorsResponse, ValidatorsSorting } from 'types/api/validators';
 import type { VerifiedContractsSorting } from 'types/api/verifiedContracts';
 import type { VisualizedContract } from 'types/api/visualization';
 import type { WithdrawalsResponse, WithdrawalsCounters } from 'types/api/withdrawals';
@@ -99,6 +110,7 @@ export interface ApiResource {
   basePath?: string;
   pathParams?: Array<string>;
   needAuth?: boolean; // for external APIs which require authentication
+  headers?: RequestInit['headers'];
 }
 
 export const SORTING_FIELDS = [ 'sort', 'order' ];
@@ -175,7 +187,7 @@ export const RESOURCES = {
     needAuth: true,
   },
 
-  // STATS
+  // STATS MICROSERVICE API
   stats_counters: {
     path: '/api/v1/counters',
     endpoint: getFeaturePayload(config.features.stats)?.api.endpoint,
@@ -254,7 +266,7 @@ export const RESOURCES = {
   block_txs: {
     path: '/api/v2/blocks/:height_or_hash/transactions',
     pathParams: [ 'height_or_hash' as const ],
-    filterFields: [],
+    filterFields: [ 'type' as const ],
   },
   block_withdrawals: {
     path: '/api/v2/blocks/:height_or_hash/withdrawals',
@@ -268,6 +280,10 @@ export const RESOURCES = {
   txs_pending: {
     path: '/api/v2/transactions',
     filterFields: [ 'filter' as const, 'type' as const, 'method' as const ],
+  },
+  txs_with_blobs: {
+    path: '/api/v2/transactions',
+    filterFields: [ 'type' as const ],
   },
   txs_watchlist: {
     path: '/api/v2/transactions/watchlist',
@@ -305,6 +321,10 @@ export const RESOURCES = {
     path: '/api/v2/transactions/:hash/state-changes',
     pathParams: [ 'hash' as const ],
     filterFields: [],
+  },
+  tx_blobs: {
+    path: '/api/v2/transactions/:hash/blobs',
+    pathParams: [ 'hash' as const ],
   },
   tx_interpretation: {
     path: '/api/v2/transactions/:hash/summary',
@@ -432,6 +452,10 @@ export const RESOURCES = {
     path: '/api/v2/smart-contracts/:hash/solidityscan-report',
     pathParams: [ 'hash' as const ],
   },
+  contract_security_audits: {
+    path: '/api/v2/smart-contracts/:hash/audit-reports',
+    pathParams: [ 'hash' as const ],
+  },
 
   verified_contracts: {
     path: '/api/v2/smart-contracts',
@@ -500,16 +524,21 @@ export const RESOURCES = {
     filterFields: [],
   },
 
-  // HOMEPAGE
-  homepage_stats: {
+  // APP STATS
+  stats: {
     path: '/api/v2/stats',
+    headers: {
+      'updated-gas-oracle': 'true',
+    },
   },
-  homepage_chart_txs: {
+  stats_charts_txs: {
     path: '/api/v2/stats/charts/transactions',
   },
-  homepage_chart_market: {
+  stats_charts_market: {
     path: '/api/v2/stats/charts/market',
   },
+
+  // HOMEPAGE
   homepage_blocks: {
     path: '/api/v2/main-page/blocks',
   },
@@ -601,6 +630,25 @@ export const RESOURCES = {
     filterFields: [],
   },
 
+  // SHIBARIUM L2
+  shibarium_deposits: {
+    path: '/api/v2/shibarium/deposits',
+    filterFields: [],
+  },
+
+  shibarium_deposits_count: {
+    path: '/api/v2/shibarium/deposits/count',
+  },
+
+  shibarium_withdrawals: {
+    path: '/api/v2/shibarium/withdrawals',
+    filterFields: [],
+  },
+
+  shibarium_withdrawals_count: {
+    path: '/api/v2/shibarium/withdrawals/count',
+  },
+
   // USER OPS
   user_ops: {
     path: '/api/v2/proxy/account-abstraction/operations',
@@ -612,6 +660,27 @@ export const RESOURCES = {
   },
   user_ops_account: {
     path: '/api/v2/proxy/account-abstraction/accounts/:hash',
+    pathParams: [ 'hash' as const ],
+  },
+  user_op_interpretation: {
+    path: '/api/v2/proxy/account-abstraction/operations/:hash/summary',
+    pathParams: [ 'hash' as const ],
+  },
+
+  // VALIDATORS
+  validators: {
+    path: '/api/v2/validators/:chainType',
+    pathParams: [ 'chainType' as const ],
+    filterFields: [ 'address_hash' as const, 'state_filter' as const ],
+  },
+  validators_counters: {
+    path: '/api/v2/validators/:chainType/counters',
+    pathParams: [ 'chainType' as const ],
+  },
+
+  // BLOBS
+  blob: {
+    path: '/api/v2/blobs/:hash',
     pathParams: [ 'hash' as const ],
   },
 
@@ -674,8 +743,8 @@ export interface ResourceError<T = unknown> {
 export type ResourceErrorAccount<T> = ResourceError<{ errors: T }>
 
 export type PaginatedResources = 'blocks' | 'block_txs' |
-'txs_validated' | 'txs_pending' | 'txs_watchlist' | 'txs_execution_node' |
-'tx_internal_txs' | 'tx_logs' | 'tx_token_transfers' | 'tx_state_changes' |
+'txs_validated' | 'txs_pending' | 'txs_with_blobs' | 'txs_watchlist' | 'txs_execution_node' |
+'tx_internal_txs' | 'tx_logs' | 'tx_token_transfers' | 'tx_state_changes' | 'tx_blobs' |
 'addresses' |
 'address_txs' | 'address_internal_txs' | 'address_token_transfers' | 'address_blocks_validated' | 'address_coin_balance' |
 'search' |
@@ -684,10 +753,11 @@ export type PaginatedResources = 'blocks' | 'block_txs' |
 'token_instance_transfers' | 'token_instance_holders' |
 'verified_contracts' |
 'l2_output_roots' | 'l2_withdrawals' | 'l2_txn_batches' | 'l2_deposits' |
+'shibarium_deposits' | 'shibarium_withdrawals' |
 'zkevm_l2_txn_batches' | 'zkevm_l2_txn_batch_txs' |
 'withdrawals' | 'address_withdrawals' | 'block_withdrawals' |
 'watchlist' | 'private_tags_address' | 'private_tags_tx' |
-'domains_lookup' | 'addresses_lookup' | 'user_ops';
+'domains_lookup' | 'addresses_lookup' | 'user_ops' | 'validators';
 
 export type PaginatedResponse<Q extends PaginatedResources> = ResourcePayload<Q>;
 
@@ -706,9 +776,9 @@ Q extends 'watchlist' ? WatchlistResponse :
 Q extends 'verified_addresses' ? VerifiedAddressResponse :
 Q extends 'token_info_applications_config' ? TokenInfoApplicationConfig :
 Q extends 'token_info_applications' ? TokenInfoApplications :
-Q extends 'homepage_stats' ? HomeStats :
-Q extends 'homepage_chart_txs' ? ChartTransactionResponse :
-Q extends 'homepage_chart_market' ? ChartMarketResponse :
+Q extends 'stats' ? HomeStats :
+Q extends 'stats_charts_txs' ? ChartTransactionResponse :
+Q extends 'stats_charts_market' ? ChartMarketResponse :
 Q extends 'homepage_blocks' ? Array<Block> :
 Q extends 'homepage_txs' ? Array<Transaction> :
 Q extends 'homepage_txs_watchlist' ? Array<Transaction> :
@@ -725,6 +795,7 @@ Q extends 'block_txs' ? BlockTransactionsResponse :
 Q extends 'block_withdrawals' ? BlockWithdrawalsResponse :
 Q extends 'txs_validated' ? TransactionsResponseValidated :
 Q extends 'txs_pending' ? TransactionsResponsePending :
+Q extends 'txs_with_blobs' ? TransactionsResponseWithBlobs :
 Q extends 'txs_watchlist' ? TransactionsResponseWatchlist :
 Q extends 'txs_execution_node' ? TransactionsResponseValidated :
 Q extends 'tx' ? Transaction :
@@ -733,6 +804,7 @@ Q extends 'tx_logs' ? LogsResponseTx :
 Q extends 'tx_token_transfers' ? TokenTransferResponse :
 Q extends 'tx_raw_trace' ? RawTracesResponse :
 Q extends 'tx_state_changes' ? TxStateChanges :
+Q extends 'tx_blobs' ? TxBlobs :
 Q extends 'tx_interpretation' ? TxInterpretationResponse :
 Q extends 'addresses' ? AddressesResponse :
 Q extends 'address' ? Address :
@@ -789,13 +861,6 @@ Q extends 'zkevm_l2_txn_batches_count' ? number :
 Q extends 'zkevm_l2_txn_batch' ? ZkEvmL2TxnBatch :
 Q extends 'zkevm_l2_txn_batch_txs' ? ZkEvmL2TxnBatchTxs :
 Q extends 'config_backend_version' ? BackendVersionConfig :
-Q extends 'addresses_lookup' ? EnsAddressLookupResponse :
-Q extends 'domain_info' ? EnsDomainDetailed :
-Q extends 'domain_events' ? EnsDomainEventsResponse :
-Q extends 'domains_lookup' ? EnsDomainLookupResponse :
-Q extends 'user_ops' ? UserOpsResponse :
-Q extends 'user_op' ? UserOp :
-Q extends 'user_ops_account' ? UserOpsAccount :
 never;
 // !!! IMPORTANT !!!
 // See comment above
@@ -803,22 +868,39 @@ never;
 
 /* eslint-disable @typescript-eslint/indent */
 export type ResourcePayloadB<Q extends ResourceName> =
+Q extends 'blob' ? Blob :
 Q extends 'marketplace_dapps' ? Array<MarketplaceAppOverview> :
 Q extends 'marketplace_dapp' ? MarketplaceAppOverview :
+Q extends 'validators' ? ValidatorsResponse :
+Q extends 'validators_counters' ? ValidatorsCountersResponse :
+Q extends 'shibarium_withdrawals' ? ShibariumWithdrawalsResponse :
+Q extends 'shibarium_deposits' ? ShibariumDepositsResponse :
+Q extends 'shibarium_withdrawals_count' ? number :
+Q extends 'shibarium_deposits_count' ? number :
+Q extends 'contract_security_audits' ? SmartContractSecurityAudits :
+Q extends 'addresses_lookup' ? EnsAddressLookupResponse :
+Q extends 'domain_info' ? EnsDomainDetailed :
+Q extends 'domain_events' ? EnsDomainEventsResponse :
+Q extends 'domains_lookup' ? EnsDomainLookupResponse :
+Q extends 'user_ops' ? UserOpsResponse :
+Q extends 'user_op' ? UserOp :
+Q extends 'user_ops_account' ? UserOpsAccount :
+Q extends 'user_op_interpretation'? TxInterpretationResponse :
 never;
 /* eslint-enable @typescript-eslint/indent */
 
 export type ResourcePayload<Q extends ResourceName> = ResourcePayloadA<Q> | ResourcePayloadB<Q>;
-
-// Right now there is no paginated resources in B-part
-// Add "| ResourcePayloadB<Q>[...]" if it is not true anymore
-export type PaginatedResponseItems<Q extends ResourceName> = Q extends PaginatedResources ? ResourcePayloadA<Q>['items'] : never;
-export type PaginatedResponseNextPageParams<Q extends ResourceName> = Q extends PaginatedResources ? ResourcePayloadA<Q>['next_page_params'] : never;
+export type PaginatedResponseItems<Q extends ResourceName> = Q extends PaginatedResources ? ResourcePayloadA<Q>['items'] | ResourcePayloadB<Q>['items'] : never;
+export type PaginatedResponseNextPageParams<Q extends ResourceName> = Q extends PaginatedResources ?
+  ResourcePayloadA<Q>['next_page_params'] | ResourcePayloadB<Q>['next_page_params'] :
+  never;
 
 /* eslint-disable @typescript-eslint/indent */
 export type PaginationFilters<Q extends PaginatedResources> =
 Q extends 'blocks' ? BlockFilters :
+Q extends 'block_txs' ? TTxsWithBlobsFilters :
 Q extends 'txs_validated' | 'txs_pending' ? TTxsFilters :
+Q extends 'txs_with_blobs' ? TTxsWithBlobsFilters :
 Q extends 'tx_token_transfers' ? TokenTransferFilters :
 Q extends 'token_transfers' ? TokenTransferFilters :
 Q extends 'address_txs' | 'address_internal_txs' ? AddressTxsFilters :
@@ -834,6 +916,7 @@ Q extends 'verified_contracts' ? VerifiedContractsFilters :
 Q extends 'addresses_lookup' ? EnsAddressLookupFilters :
 Q extends 'domains_lookup' ? EnsDomainLookupFilters :
 Q extends 'user_ops' ? UserOpsFilters :
+Q extends 'validators' ? ValidatorsFilters :
 never;
 /* eslint-enable @typescript-eslint/indent */
 
@@ -845,5 +928,6 @@ Q extends 'verified_contracts' ? VerifiedContractsSorting :
 Q extends 'address_txs' ? TransactionsSorting :
 Q extends 'addresses_lookup' ? EnsLookupSorting :
 Q extends 'domains_lookup' ? EnsLookupSorting :
+Q extends 'validators' ? ValidatorsSorting :
 never;
 /* eslint-enable @typescript-eslint/indent */

@@ -68,7 +68,7 @@ const TokenInventory = ({ inventoryQuery, tokenQuery, ownerFilter }: Props) => {
       >
         { items.map((item, index) => (
           <TokenInventoryItem
-            key={ token.address + '_' + item.id + (inventoryQuery.isPlaceholderData ? '_' + index : '') }
+            key={ item.id + '_' + index + (inventoryQuery.isPlaceholderData ? '_' + 'placeholder' : '') }
             item={ item }
             isLoading={ inventoryQuery.isPlaceholderData || tokenQuery.isPlaceholderData }
             token={ token }
@@ -83,6 +83,10 @@ const TokenInventory = ({ inventoryQuery, tokenQuery, ownerFilter }: Props) => {
       isError={ inventoryQuery.isError }
       items={ items }
       emptyText="There are no tokens."
+      filterProps={{
+        hasActiveFilters: Boolean(ownerFilter),
+        emptyFilteredText: 'No tokens found for the selected owner.',
+      }}
       content={ content }
       actionBar={ actionBar }
     />
